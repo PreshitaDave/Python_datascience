@@ -1,0 +1,68 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Feb 28 21:36:13 2022
+
+@author: E207709
+"""
+
+import pandas as pd
+import numpy as np
+import time
+
+
+def disagreement_dist(P_labels, C_labels):
+    total = len(P_labels)
+    dist = 0
+
+    for i in range(0, total-1):
+#         if i%5000==0:
+#             print('{} is done'.format(i))
+        for j in range(i+1, total):
+            if(C_labels[i] == C_labels[j]):
+                if(P_labels[i] != P_labels[j]):
+                    dist = dist+1 
+            elif(C_labels[i] != C_labels[j]):
+                if (P_labels[i] == P_labels[j]):
+                    dist = dist+1
+    return dist
+
+
+def new_disagreement(df):
+
+    result = pd.merge(left = df, right=df, on='C', how="outer", sort=False)
+    filt = result[result["P_x"]!=result["P_y"]]
+
+    a = len(filt)
+
+    result = pd.merge(left = df, right=df, on='P', how="outer", sort=False)
+    filt = result[result["C_x"]!=result["C_y"]]
+
+    b = len(filt)
+
+    dd = int((a+b)/2)
+    return dd
+
+
+
+C_labels = np.random.randint(low=1,  high= 500, size = 5000)
+
+P_labels = np.random.randint(low=1,  high= 500, size = 5000)
+
+
+
+
+df = pd.DataFrame( columns = ['C', 'P'])
+    
+df['C'] = pd.Series(C_labels)
+df['P'] = pd.Series(P_labels)
+
+start_time = time.time()
+
+
+print(new_disagreement(df))
+print("--- %s seconds ---" % (time.time() - start_time))
+
+start_time = time.time()
+
+print(disagreement_dist(P_labels,C_labels))
+print("--- %s seconds ---" % (time.time() - start_time))
